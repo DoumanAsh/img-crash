@@ -1,0 +1,24 @@
+[package]
+name = "img-crash"
+version = "0.1.0"
+authors = ["Douman <douman@gmx.se>"]
+repository = "https://github.com/DoumanAsh/img-crash"
+description = "Image optimizer."
+keywords = ["image"]
+license = "Apache-2.0"
+readme = "README.md"
+
+[dependencies]
+clap = "2"
+memmap = "0"
+
+#serde = "1"
+#toml = "0"
+#serde_derive = "1"
+
+mime = "0.3"
+mime_guess = "2.0.0-alpha.3"
+
+[dependencies.oxipng]
+version = "0"
+default-features = false
