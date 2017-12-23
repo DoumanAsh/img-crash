@@ -11,6 +11,7 @@ readme = "README.md"
 [dependencies]
 clap = "2"
 memmap = "0"
+num_cpus = "1"
 
 #serde = "1"
 #toml = "0"

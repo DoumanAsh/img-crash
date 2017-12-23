@@ -1,13 +1,20 @@
 extern crate oxipng;
+extern crate num_cpus;
 
 mod cli;
 mod image;
 
+use std::cmp;
+
 fn run() -> Result<i32, String> {
     let args = cli::Args::new()?;
 
-    let mut oxipng_options = oxipng::Options::from_preset(6);
+    //Use at most 1/2 of physical CPU
+    let cpu_num = cmp::max(num_cpus::get_physical() / 2, 1);
+    let mut oxipng_options = oxipng::Options::from_preset(4);
     oxipng_options.verbosity = None;
+    oxipng_options.threads = cpu_num;
+    oxipng_options.strip = oxipng::headers::Headers::Safe;
 
     for image in args.images {
         println!(">>>Optimize {}", &image);
