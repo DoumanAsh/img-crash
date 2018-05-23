@@ -18,8 +18,8 @@ num_cpus = "1"
 #serde_derive = "1"
 
 mime = "0.3"
-mime_guess = "2.0.0-alpha.3"
+mime_guess = "2.0.0-alpha.4"
 
 [dependencies.oxipng]
-version = "0"
+version = "1"
 default-features = false
