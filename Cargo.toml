@@ -12,6 +12,7 @@ readme = "README.md"
 clap = "2"
 memmap = "0"
 num_cpus = "1"
+walkdir = "2"
 
 #serde = "1"
 #toml = "0"

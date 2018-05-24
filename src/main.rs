@@ -1,53 +1,70 @@
 extern crate oxipng;
 extern crate num_cpus;
+extern crate walkdir;
 
 mod cli;
 mod image;
+mod optimize;
 
-use std::cmp;
+use walkdir::WalkDir;
+
+use std::fs;
+
+#[inline]
+///Filters errors out and prints them, if needed.
+fn walk_filter_map_error(value: walkdir::Result<walkdir::DirEntry>) -> Option<walkdir::DirEntry> {
+    match value {
+        Ok(entry) => Some(entry),
+        Err(error) => {
+            eprintln!("Unexpected error while walking directory: {}", error);
+            None
+        }
+    }
+}
+
+#[inline]
+///Filter by type of entry.
+fn walk_filter_type(entry: &walkdir::DirEntry) -> bool {
+    entry.file_type().is_file()
+}
 
 fn run() -> Result<i32, String> {
     let args = cli::Args::new()?;
 
-    //Use at most 1/2 of physical CPU
-    let cpu_num = cmp::max(num_cpus::get_physical() / 2, 1);
-    let mut oxipng_options = oxipng::Options::from_preset(4);
-    oxipng_options.verbosity = None;
-    oxipng_options.threads = cpu_num;
-    oxipng_options.strip = oxipng::headers::Headers::Safe;
+    let optimizer = optimize::Optimizer::new();
 
     for image in args.images {
-        println!(">>>Optimize {}", &image);
-        let image = match image::Image::open(&image) {
-            Ok(result) => result,
+        let meta = match fs::metadata(&image) {
+            Ok(meta) => meta,
             Err(error) => {
-                println!("Unable to open file. Error: {}", error);
-                continue
+                println!("Unable to access path '{}'. Error: {}", image, error);
+                continue;
             }
         };
+        if meta.is_file() {
+            match optimizer.optimize(&image) {
+                Ok(_) => (),
+                Err(error) => println!("Unable to optimize '{}'. {}", image, error)
+            }
+        } else if meta.is_dir() {
+            let walker = WalkDir::new(&image).min_depth(1).max_depth(args.depth)
+                                             .into_iter()
+                                             .filter_map(walk_filter_map_error)
+                                             .filter(walk_filter_type);
 
-        println!("Size={}b", image.len);
-        let new_data = if image.is_png() {
-            match oxipng::optimize_from_memory(image.slice(), &oxipng_options) {
-                Ok(result) => result,
-                Err(error) => {
-                    println!("PNG Error: {}", error);
-                    continue;
+            for entry in walker {
+                match entry.path().to_str() {
+                    Some(entry) => {
+                        let _ = optimizer.optimize(entry);
+                    },
+                    None => println!("{}: Not a valid unicode path", entry.path().display())
                 }
             }
-        }
-        else {
-            println!("Not supported...");
-            continue;
-        };
 
-        println!("Optimized={}b", new_data.len());
-        if (new_data.len() as u64) < image.len {
-            match image.update(&new_data) {
-                Ok(_) => (),
-                Err(error) => println!("Couldn't write file. Error {}", error)
-            }
+        } else {
+            println!("Not a file or directory. Ignore");
         }
+
     }
 
     Ok(0)
