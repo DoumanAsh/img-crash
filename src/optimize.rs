@@ -17,7 +17,7 @@ impl Optimizer {
         let mut oxipng_options = oxipng::Options::from_preset(4);
         oxipng_options.verbosity = None;
         oxipng_options.threads = cpu_num;
-        oxipng_options.strip = oxipng::headers::Headers::Safe;
+        oxipng_options.strip = oxipng::Headers::Safe;
 
         Self {
             oxipng_options
