@@ -1,10 +1,6 @@
-extern crate oxipng;
-extern crate num_cpus;
-
-use std::cmp;
 use std::io;
 
-use ::image;
+use crate::image;
 
 pub struct Optimizer {
     oxipng_options: oxipng::Options
@@ -13,10 +9,7 @@ pub struct Optimizer {
 impl Optimizer {
     pub fn new() -> Self {
         //Use at most 1/2 of physical CPU
-        let cpu_num = cmp::max(num_cpus::get_physical() / 2, 1);
         let mut oxipng_options = oxipng::Options::from_preset(4);
-        oxipng_options.verbosity = None;
-        oxipng_options.threads = cpu_num;
         oxipng_options.strip = oxipng::Headers::Safe;
 
         Self {

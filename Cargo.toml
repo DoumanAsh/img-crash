@@ -7,21 +7,18 @@ description = "Image optimizer."
 keywords = ["image"]
 license = "Apache-2.0"
 readme = "README.md"
+edition = "2018"
 
 [dependencies]
-clap = "2"
+arg = "0.3"
+c-ffi = { version = "0.2", default-features = false }
 memmap = "0"
-num_cpus = "1"
 walkdir = "2"
 
-#serde = "1"
-#toml = "0"
-#serde_derive = "1"
-
 mime = "0.3"
-mime_guess = "2.0.0-alpha.4"
+mime_guess = "2"
 
 [dependencies.oxipng]
-version = "2"
+version = "3"
 default-features = false
 features = ["parallel"]

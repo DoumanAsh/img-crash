@@ -1,11 +1,10 @@
-extern crate oxipng;
-extern crate num_cpus;
-extern crate walkdir;
+#![no_main]
 
 mod cli;
 mod image;
 mod optimize;
 
+use arg::Args;
 use walkdir::WalkDir;
 
 use std::fs;
@@ -28,23 +27,33 @@ fn walk_filter_type(entry: &walkdir::DirEntry) -> bool {
     entry.file_type().is_file()
 }
 
-fn run() -> Result<i32, String> {
-    let args = cli::Args::new()?;
+#[no_mangle]
+unsafe extern "C" fn main(argc: isize, argv: *const *const u8) -> isize {
+    let args = c_ffi::Args::new(argc, argv).expect("To get function arguments");
+
+    let args = match cli::Cli::from_args(args.into_iter().skip(1)) {
+        Ok(args) => args,
+        Err(err) => {
+            println!("{}", err);
+            return !err.is_help() as isize
+        }
+    };
 
     let optimizer = optimize::Optimizer::new();
 
-    for image in args.images {
+    for image in args.file {
         let meta = match fs::metadata(&image) {
             Ok(meta) => meta,
             Err(error) => {
-                println!("Unable to access path '{}'. Error: {}", image, error);
+                eprintln!("Unable to access path '{}'. Error: {}", image, error);
                 continue;
             }
         };
+
         if meta.is_file() {
             match optimizer.optimize(&image) {
                 Ok(_) => (),
-                Err(error) => println!("Unable to optimize '{}'. {}", image, error)
+                Err(error) => eprintln!("Unable to optimize '{}'. {}", image, error)
             }
         } else if meta.is_dir() {
             let walker = WalkDir::new(&image).min_depth(1).max_depth(args.depth)
@@ -57,30 +66,15 @@ fn run() -> Result<i32, String> {
                     Some(entry) => {
                         let _ = optimizer.optimize(entry);
                     },
-                    None => println!("{}: Not a valid unicode path", entry.path().display())
+                    None => eprintln!("{}: Not a valid unicode path", entry.path().display())
                 }
             }
 
         } else {
-            println!("Not a file or directory. Ignore");
+            eprintln!("Not a file or directory. Ignore");
         }
 
     }
 
-    Ok(0)
+    0
 }
-
-fn main() {
-    use std::process::exit;
-
-    let code: i32 = match run() {
-        Ok(res) => res,
-        Err(error) => {
-            eprintln!("{}", error);
-            1
-        }
-    };
-
-    exit(code);
-}
-
