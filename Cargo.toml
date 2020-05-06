@@ -22,3 +22,8 @@ mime_guess = "2"
 version = "3"
 default-features = false
 features = ["parallel"]
+
+[profile.release]
+lto = true
+opt-level = "z"
+codegen-units = 1
