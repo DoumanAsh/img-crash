@@ -1,20 +1,7 @@
-extern crate memmap;
-extern crate mime;
-extern crate mime_guess;
-
-use self::mime_guess::{
-    Mime,
-    guess_mime_type
-};
-use self::memmap::{
-    Mmap,
-    MmapMut
-};
-use ::std::fs::{
-    File,
-    OpenOptions
-};
-use ::std::io;
+use mime_guess::Mime;
+use memmap::{Mmap, MmapMut};
+use std::fs::{File, OpenOptions};
+use std::io;
 
 pub struct Image {
     inner: Mmap,
@@ -25,11 +12,9 @@ pub struct Image {
 
 impl Image {
     pub fn open(path: &str) -> io::Result<Image> {
-        let mime = guess_mime_type(path);
+        let mime = mime_guess::from_path(path).first_or_octet_stream();
 
-        if mime == mime::IMAGE_PNG {
-        }
-        else {
+        if mime != mime::IMAGE_PNG {
             return Err(io::Error::new(io::ErrorKind::Other, "Unsupported file type. Available: png."))
         }
 
