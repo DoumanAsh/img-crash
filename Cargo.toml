@@ -18,11 +18,11 @@ mime = "0.3"
 mime_guess = "2"
 
 [dependencies.c-ffi]
-version = "0.2"
+version = "0.4.6"
 default-features = false
 
 [dependencies.oxipng]
-version = "5"
+version = "6"
 default-features = false
 features = ["parallel"]
 
@@ -30,3 +30,4 @@ features = ["parallel"]
 lto = true
 opt-level = "z"
 codegen-units = 1
+strip = true
