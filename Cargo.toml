@@ -10,19 +10,16 @@ readme = "README.md"
 edition = "2021"
 
 [dependencies]
-arg = "0.3"
+arg = "0.4"
 memmap = "0"
 walkdir = "2"
+c-main = "1"
 
 mime = "0.3"
 mime_guess = "2"
 
-[dependencies.c-ffi]
-version = "0.4.6"
-default-features = false
-
 [dependencies.oxipng]
-version = "6"
+version = "8"
 default-features = false
 features = ["parallel"]
 

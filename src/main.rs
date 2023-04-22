@@ -28,9 +28,7 @@ fn walk_filter_type(entry: &walkdir::DirEntry) -> bool {
 }
 
 #[no_mangle]
-unsafe extern "C" fn main(argc: isize, argv: *const *const u8) -> isize {
-    let args = c_ffi::Args::new(argc, argv).expect("To get function arguments");
-
+pub fn rust_main(args: c_main::Args) -> isize {
     let args = match cli::Cli::from_args(args.into_iter().skip(1)) {
         Ok(args) => args,
         Err(err) => {
