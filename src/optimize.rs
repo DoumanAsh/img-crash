@@ -10,7 +10,7 @@ impl Optimizer {
     pub fn new() -> Self {
         //Use at most 1/2 of physical CPU
         let mut oxipng_options = oxipng::Options::from_preset(4);
-        oxipng_options.strip = oxipng::Headers::Safe;
+        oxipng_options.strip = oxipng::StripChunks::Safe;
 
         Self {
             oxipng_options
